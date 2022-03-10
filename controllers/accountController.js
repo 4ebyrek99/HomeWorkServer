@@ -48,32 +48,53 @@ exports.reg = (req, res) =>{
         password: req.body.password
     })
 
-    User.addUser(newUser, (err, user) =>{
-        if(err){
-            res.json({success: false, msg: "Пользователь не был зарегистрирован!"});
+    User.getUserByLogin(newUser.login, (err, user)=>{
+        if(!user){
+            User.addUser(newUser, (err, user) =>{
+                if(err){
+                    res.json({success: false, msg: "Пользователь не был зарегистрирован!"});
+                }
+                else{
+                    res.json({
+                        success: true,
+                        msg: "Пользователь был зарегистрирован!",
+                        data:{
+                            name: user.name,
+                            login: user.login,
+                        }
+                    })
+                }
+            });
         }
         else{
-            res.json({
-                success: true,
-                msg: "Пользователь был зарегистрирован!",
-                data:{
-                    name: user.name,
-                    login: user.login,
-                }
-            })
+            res.json({success:false, msg:"Такой логин уже используется!"})
         }
-    });
+    })
+
+    
 };
 
 exports.change = (req, res) =>{
-    const login = req.body.login
+    const oldlogin = req.body.login
     const newLogin = req.body.newLogin
 
-    User.changeLogin(login, newLogin, (err, callback)=>{
-        if(!err){
-            res.json({success: true, msg:"Логин успешно изменен"})
+    User.getUserByLogin(login, (err, login)=>{
+        if(!login){
+            User.changeLogin(oldlogin, newLogin, (err, changed)=>{
+                if(changed){
+                    res.json({success: true, msg:"Логин успешно изменен"})
+                }
+                else{
+                    console.log(err);
+                }
+            })
+        }
+        else{
+            res.json({success:false, msg:"Такой логин уже используется!"})
         }
     })
+
+    
 
 }
 

@@ -29,29 +29,18 @@ module.exports.getUserById = function(id, callback){
 };
 
 module.exports.addUser = function(newUser, callback){
-    
-    const query = {login: newUser.login};
-    User.findOne(query, (err, user) =>{
-        if(!err){
-            if(!user){
-                bcrypt.genSalt(10, (err, salt) =>{
-                    bcrypt.hash(newUser.password, salt, (err, hash) =>{
-                        if(!err){
-                            newUser.password = hash;
-                            newUser.save(callback);
-                        }
-                        else{
-                            console.log(err);
-                        }
-                    });
-                });
+
+    bcrypt.genSalt(10, (err, salt) =>{
+        bcrypt.hash(newUser.password, salt, (err, hash) =>{
+            if(!err){
+                newUser.password = hash;
+                newUser.save(callback);
             }
-        }
-        else{
-            console.log(err);
-        }
+            else{
+                console.log(err);
+            }
+        });
     });
-    
     
 };
 
